@@ -1,0 +1,217 @@
+<!--
+
+	TODO:
+
+	General
+	- configure wpm -> speed (slider)
+	- configure tone frequency (slider)
+
+	Game
+	- show / hide - character set
+	- character set length
+
+
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Morse Code Learning Tool</title>
+
+    <!-- Bootstrap -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+
+
+    <div class="row">
+    	<div class="col-md-8">
+  			  <h1>Morse Code fans!</h1>
+  			  <a href="javascript: init();">init</a>
+  			  <div id="box">?</div>
+  			  <div id="current_set"></div>
+    	</div>
+    	<div class="col-md-4">
+    		<h3>Dictionary</h3>
+"a": "._"<br>
+"b": "_..."<br>
+"c": "_._."<br>
+"d": "_.."<br>
+"e": "."<br>
+"f": ".._."<br>
+"g": "__."<br>
+"h": "...."<br>
+"i": ".."<br>
+"j": ".___"<br>
+"k": "_._"<br>
+"l": "._.."<br>
+"m": "__"<br>
+"n": "_."<br>
+"o": "___"<br>
+"p": ".__."<br>
+"q": "__._"<br>
+"r": "._."<br>
+"s": "..."<br>
+"t": "_"<br>
+"u": ".._"<br>
+"v": "..._"<br>
+"w": ".__"<br>
+"x": "_.._"<br>
+"y": "_.__"<br>
+"z": "__.."<br>
+    	</div>
+    </div>
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/morse.js"></script>
+
+<script>
+	m = new Morse();
+	m.wpm = 30;
+	console.log(m.wpm);
+	console.log(m.speed);
+
+	function Generator() {
+		this.alphabet = 'abcdefghijklmnopqrstuvwxyz';
+		this.letters = 'abcdefghijklmnopqrstuvwxyz';
+		this.lastRandom = 'a';
+
+		this.getRandomLetter = function () {
+			this.lastRandom = this.letters[Math.floor(Math.random() * this.letters.length)];
+			return this.lastRandom;
+		};
+	}
+
+	g = new Generator();
+
+	user = {
+		attempts: 0,
+		consecutive: 0,
+	};
+
+
+document.addEventListener("keydown", keyDownTextField, false);
+
+function keyDownTextField(e) {
+	var letter = String.fromCharCode(e.which);
+	if (letter.toLowerCase() == g.lastRandom) {
+		write('Success!');
+		if (user.attempts == 0) {
+			user.consecutive ++;
+		}
+		if (user.consecutive > 0) {
+			user.consecutive = 0;
+			setTimeout(init, 500);
+		} else {
+			setTimeout(generate, 500);	
+		}
+		
+
+		user.attempts = 0;
+		handleDesign();
+	} else {
+		write('Try Again!');
+		user.attempts ++;
+		user.consecutive = 0;
+		handleDesign();
+		m.play(g.lastRandom);
+	}
+}
+
+	function generate() {
+		var letter = g.getRandomLetter();
+	//	document.getElementById('text').value = letter;
+		m.play(letter);
+	}
+
+	function write(text) {
+	//	document.getElementById('output').innerHTML = text;
+	}
+
+	function init() {
+		var length = 3;
+		var newLetters = [];
+		var newLetter = '';
+		g.letters = g.alphabet;
+		while (newLetters.length < 3) {
+			newLetter = g.getRandomLetter();
+			if (newLetters.indexOf(newLetter) == -1) {
+				newLetters.push(newLetter);
+			}
+		}
+		g.letters = newLetters.join('');
+		document.getElementById('current_set').innerHTML = g.letters;
+		m.play(g.lastRandom);
+	}
+
+	function handleDesign() {
+		var element = document.getElementById('box');
+		var text = '?';
+		var bg = '#f39c12';
+		var color = '#2c3e50';
+		switch (user.attempts) {
+			case 0:
+				bg = '#2c3e50';
+				break;
+			case 1:
+				bg = '#2980b9';
+				break;
+			case 2:
+				bg = '#16a085';
+				break;
+			default:
+				color = '#c0392b';
+				break;
+		}
+		element.style.backgroundColor = bg;
+		element.style.color = color;
+		if (user.attempts > 2) {
+			text = g.lastRandom.toUpperCase();
+		}
+		element.innerHTML = text;
+	}
+</script>
+
+<style>
+#box {
+	margin: 10% auto 0;
+	height: 100px;
+	width: 100px;
+	border: 1px solid #2c3e50;
+	font-family: Helvetica, Verdana, sans serif;
+	font-size: 80px;
+	text-align: center;
+	background-color: #34495e;
+}
+#current_set {
+	margin-top: 10%;
+	font-size: 3em;
+	text-align: center;
+}
+</style>
+
+
+
+<script>
+init();
+</script>
+
+  </body>
+</html>
